@@ -1,0 +1,47 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+
+<div id="chat" style="margin-top: 200px;">
+    <form id="frm-send-message" action="#">
+        <label for="message">Message:</label>
+        <input type="text" id="message" />
+        <input type="submit" id="send" value="Send" />
+    </form>
+    <div class="clear">
+    </div>
+    <ul id="messages"></ul>
+</div>
+
+<script src="js/signalr-client.js"></script>
+
+<script>
+    let transportType = signalR.TransportType.WebSockets;
+    let http = new signalR.HttpConnection(`http://${document.location.host}/chat`, { transport: transportType });
+    let connection = new signalR.HubConnection(http);
+    connection.start();
+ 
+    connection.on('Send', (message) => {
+        console.log(`http://${document.location.host}/chat`);
+        
+        appendLine(message);    
+    });
+ 
+    document.getElementById('frm-send-message').addEventListener('submit', event => {
+        let message = document.getElementById('message').value;
+        document.getElementById('message').value = '';
+ 
+        connection.invoke('Send', message);   
+        event.preventDefault();
+    });
+ 
+    function appendLine(line, color) {
+        let li = document.createElement('li');
+        li.innerText = line;
+        document.getElementById('messages').appendChild(li);
+    };
+ 
+</script>
